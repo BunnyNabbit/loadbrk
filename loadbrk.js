@@ -58,7 +58,17 @@ Game.command("remove", (p,i) => {
 Game.command("guitoggle", (p,i) => {
     // TODO: make it so that this command doesn't require admin and only affects you (so gui is only disabled for you)
     if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
-    guitoggle = !guitoggle
+    
+    // this is here to hopefully fix bug
+    if (guitoggle == true) {
+        guitoggle = false
+    }
+    else if (guitoggle == false) {
+        guitoggle = true
+    }
+    else {
+        guitoggle = true
+    }
 })
 
 Game.command("skip", async(p,i) => {
