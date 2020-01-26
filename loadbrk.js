@@ -1,8 +1,11 @@
-sets = ["1"]
-ownerAdminId = 1
+//loadbrk.js, made by smartlion, slightly edited by podnf
+sets = ["blocky","brkcanyon","house","house2","tower"] // TODO: make this not hard-coded somehow??????? 
+ownerAdminId = 83487 // user id goes here
+countdown = 600 // 600 seconds is 10 minutes
 
 Game.command("load", async(p,i) => {
-    if (p.userId !== ownerAdminId) return;
+    if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
+    countdown = 600 // reset the countdown
     world.bricks.forEach(async(brick) => {
         await sleep(2000)
         brick.destroy()
@@ -32,34 +35,45 @@ Game.command("load", async(p,i) => {
 })
 
 Game.command("add", (p,i) => {
-    if (p.userId !== ownerAdminId) return;
+    if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
     sets.push(i)
     Game.messageAll(`\\c6${i}.brk has been added!`)
 })
 
 Game.command("pop", (p,i) => {
-    if (p.userId !== ownerAdminId) return;
+    if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
     var i = sets.pop()
     Game.messageAll(`\\c6${i}.brk has been removed!`)
 })
 
 Game.command("remove", (p,i) => {
-    if (p.userId !== ownerAdminId) return;
+    if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
     x = sets.indexOf(i)
     if (x == -1) return p.message(`\\c6Unable to find ${i}`)
     sets.splice(x,1);
     Game.messageAll(`\\c6${i}.brk has been removed!`)
 })
 
-setInterval(async() => {
-    console.log("loading")
-    i = sets[randynumber(0,sets.length - 1)]
+
+async function autoload() {
+    do {
+        console.log("Rolling die for a new map...")
+        i = sets[randynumber(0,sets.length - 1)]
+        currentMap = Game.mapName
+        newMap = i+'.brk'
+        //debug
+        console.log("Rolled "+newMap+" as our new map.")
+        console.log(currentMap+" is the current map.")
+    }
+    while (newMap == currentMap); // keep rolling until we get a different map than what we had previously
+
     world.bricks.forEach(async(brick) => {
         await sleep(2000)
         brick.destroy()
     })
     await sleep(2000)
-    Game.messageAll(`\\c6Automaticly loading ${i}.brk`)
+    console.log("autoloading "+i)
+    Game.messageAll(`\\c6Autoloading ${i}.brk`)
     let data = await Game.loadBrk(`./maps/${i}.brk`)
     Game.setEnvironment(data.environment)
     Game.players.forEach((player) => {
@@ -80,7 +94,8 @@ setInterval(async() => {
             brick.destroy()
         }
     })
-},600000)
+console.log("autoloaded "+i) 
+}
 
 function randynumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
@@ -106,8 +121,6 @@ function spawnscorebubble(pos,type){
             //brick-streamstuuf line
             p.centerPrint(`${p.bubblescore}`,3)
             bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#00ff00",)
-            bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#00ff00",)
-            bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#00ff00",)
             brick.destroy()
         } else if (type == 2) {
             p.bubblescore += 50
@@ -115,8 +128,6 @@ function spawnscorebubble(pos,type){
             p.bubblecooldown = 3
             //brick-streamstuuf line
             p.centerPrint(`${p.bubblescore}`,3)
-            bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#ffff00",)
-            bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#ffff00",)
             bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#ffff00",)
             brick.destroy()
         } else if (type == 3) {
@@ -126,11 +137,9 @@ function spawnscorebubble(pos,type){
             //brick-streamstuuf line
             p.centerPrint(`${p.bubblescore}`,3)
             bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#ff0000",)
-            bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#ff0000",)
-            bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#ff0000",)
             brick.destroy()
         }
-    }, 800))
+    }, 2000))
 }
 
 Game.on('playerJoin', (p) => {
@@ -188,3 +197,16 @@ function bubbleexplode(px,py,pz,color) {
         }
     }, 35)
 }
+
+autoload()
+
+setInterval(async() => {
+    countdown--
+    //console.log("countdown: "+countdown)
+    Game.topPrintAll("[#FFDE0A]Current map: [#FFFFFF]"+Game.mapName,1002)
+    Game.bottomPrintAll("[#FFDE0A]Time until next map: [#FFFFFF]"+countdown+" seconds.",1002)
+    if (countdown < 1) {
+        countdown = 600
+        autoload()
+    }
+},1000)
