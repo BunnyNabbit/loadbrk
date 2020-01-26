@@ -2,6 +2,7 @@
 sets = ["blocky","brkcanyon","house","house2","tower"] // TODO: make this not hard-coded somehow??????? 
 ownerAdminId = 83487 // user id goes here
 countdown = 600 // 600 seconds is 10 minutes
+guiEnable = true
 
 Game.command("load", async(p,i) => {
     if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
@@ -54,6 +55,20 @@ Game.command("remove", (p,i) => {
     Game.messageAll(`\\c6${i}.brk has been removed!`)
 })
 
+Game.command("guitoggle", (p,i) => {
+    // TODO: make it so that this command doesn't require admin and only affects you (so gui is only disabled for you)
+    if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
+    guitoggle = !guitoggle
+})
+
+Game.command("skip", async(p,i) => {
+    if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
+    countdown = 600
+    autoload()
+})
+
+// TODO: make a voteskip command that doesnt require admin and casts a vote if this map should be skipped
+// only act on the autoload if there is a majority of yes
 
 async function autoload() {
     do {
@@ -139,7 +154,7 @@ function spawnscorebubble(pos,type){
             bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#ff0000",)
             brick.destroy()
         }
-    }, 2000))
+    }, 800)) // this probably didn't have to be 2000 so i'm changing it back to 800
 }
 
 Game.on('playerJoin', (p) => {
@@ -198,13 +213,15 @@ function bubbleexplode(px,py,pz,color) {
     }, 35)
 }
 
-autoload()
+autoload() // choose a random map to load on server start
 
 setInterval(async() => {
     countdown--
     //console.log("countdown: "+countdown)
-    Game.topPrintAll("[#FFDE0A]Current map: [#FFFFFF]"+Game.mapName,1002)
-    Game.bottomPrintAll("[#FFDE0A]Time until next map: [#FFFFFF]"+countdown+" seconds.",1002)
+    if (guitoggle) {
+        Game.topPrintAll("[#FFDE0A]Current map: [#FFFFFF]"+Game.mapName,1000)
+        Game.bottomPrintAll("[#FFDE0A]Time until next map: [#FFFFFF]"+countdown+" seconds.",1000)
+    }
     if (countdown < 1) {
         countdown = 600
         autoload()
