@@ -1,4 +1,4 @@
-//loadbrk.js, made by smartlion, slightly edited by podnf
+//loadbrk.js, created by bunnynabbit (aka SmartLion on Brick Hill) and pb2007 (Podnf)
 sets = ["blocky","brkcanyon","house","house2","tower"] // TODO: make this not hard-coded somehow??????? 
 ownerAdminId = 83487 // user id goes here
 countdown = 600 // 600 seconds is 10 minutes
