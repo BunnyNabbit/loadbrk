@@ -14,12 +14,19 @@ using loadbrk.js is also simple. loadbrk comes with some commands that you can u
 
 `/load` loads a file that you specify. for example, typing `/load house` into chat would load the map `./maps/house.brk`.
 
-`/add` adds a file to the sets in the autoload catalog. not persistant. example: `/add house` adds the map `./maps/house.brk`
+`/add` adds a file to the sets in the autoload catalog. example: `/add house` adds the map `./maps/house.brk`
 
-`/pop` removes the last added map. not persistant.
+`/pop` removes the last added map.
 
-`/remove` removes a certain map. not persistant. example: `/remove house` removes `./maps/house.brk` from the autoload catalog.
+`/remove` removes a certain map. example: `/remove house` removes `./maps/house.brk` from the autoload catalog.
 
 `/guitoggle` toggles the gui that shows the current map and time until next autoload.
 
 `/skip` resets the countdown and runs autoload, effectively skipping the current map.
+
+`/sets` lists all sets used by the autoloader
+
+if `flatfiledbEnabled` is true then all changes made by these commands will persist
+
+
+
