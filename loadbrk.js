@@ -1,19 +1,46 @@
 //loadbrk.js, created by bunnynabbit (aka SmartLion on Brick Hill) and pb2007 (Podnf)
-sets = ["blocky","brkcanyon","house","house2","tower"] // TODO: make this not hard-coded somehow??????? 
-ownerAdminId = 83487 // user id goes here
-countdown = 600 // 600 seconds is 10 minutes
+// Settings \\
+sets = ["blocky","brkcanyon","house","house2","tower"] // Files to be loaded by the auto selector (ignored if flat-file-db already exists)
+ownerAdminId = 1 // user id goes here
+countdownDefault = 600 // 600 seconds is 10 minutes
 guiEnable = true
+flatfiledbEnabled = false // (npm i flat-file-db) Uses flat-file-db to save sets added from /add and ports existing data from the sets array. If database already exists then the above hardcoded array wont be used
+// Settings \\
 
-Game.command("load", async(p,i) => {
+countdown = countdownDefault
+if (flatfiledbEnabled == true) { 
+flatfile = require('flat-file-db');
+db = flatfile('/tmp/loadbrkdata.db'); // This will create a folder called tmp at current drive
+let readydb = 2
+db.on('open', function() {
+    readydb = 1
+    let twig = db.has("setdb")
+    if (twig == true) {
+        twig = db.get("setdb")
+        console.log(`Loaded save with ${twig.length} sets`)
+        sets = twig 
+        autoload()
+    } else { 
+        console.log(`WARN: Save data not found! Creating save data.`)
+        console.log(`${sets.length} sets ported into database`)
+        db.put("setdb",sets)
+        autoload()
+    }
+});
+} else {
+    autoload() // choose a random map to load on server start
+}
+
+Game.command("load", async(p,i) => { //TODO: tidy up the code
     if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
-    countdown = 600 // reset the countdown
+    countdown = countdownDefault // reset the countdown
     world.bricks.forEach(async(brick) => {
         await sleep(2000)
         brick.destroy()
     })
     await sleep(2000)
     Game.messageAll(`\\c6Loading ${i}.brk`)
-    let data = await Game.loadBrk(`./maps/${i}.brk`)
+    let data = await Game.loadBrk(`./AAAbrickloadmaps/${i}.brk`)
     Game.setEnvironment(data.environment)
     Game.players.forEach((player) => {
         player.respawn()
@@ -39,12 +66,18 @@ Game.command("add", (p,i) => {
     if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
     sets.push(i)
     Game.messageAll(`\\c6${i}.brk has been added!`)
+    if (flatfiledbEnabled == true) {
+        db.put("setdb",sets)
+    }
 })
 
 Game.command("pop", (p,i) => {
     if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
     var i = sets.pop()
     Game.messageAll(`\\c6${i}.brk has been removed!`)
+    if (flatfiledbEnabled == true) {
+        db.put("setdb",sets)
+    }
 })
 
 Game.command("remove", (p,i) => {
@@ -53,6 +86,9 @@ Game.command("remove", (p,i) => {
     if (x == -1) return p.message(`\\c6Unable to find ${i}`)
     sets.splice(x,1);
     Game.messageAll(`\\c6${i}.brk has been removed!`)
+    if (flatfiledbEnabled == true) {
+        db.put("setdb",sets)
+    }
 })
 
 Game.command("guitoggle", (p,i) => {
@@ -63,8 +99,16 @@ Game.command("guitoggle", (p,i) => {
 
 Game.command("skip", async(p,i) => {
     if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
-    countdown = 600
+    countdown = countdownDefault
     autoload()
+})
+
+Game.command("sets", (p,i) => {
+    let x = []
+    for (let name of sets) {
+        x.push(` ${name}`)
+    }
+    p.message(`\\c5Sets:\\c0${String(x)}`)
 })
 
 // TODO: make a voteskip command that doesnt require admin and casts a vote if this map should be skipped
@@ -89,7 +133,7 @@ async function autoload() {
     await sleep(2000)
     console.log("autoloading "+i)
     Game.messageAll(`\\c6Autoloading ${i}.brk`)
-    let data = await Game.loadBrk(`./maps/${i}.brk`)
+    let data = await Game.loadBrk(`./AAAbrickloadmaps/${i}.brk`)
     Game.setEnvironment(data.environment)
     Game.players.forEach((player) => {
         player.respawn()
@@ -213,8 +257,6 @@ function bubbleexplode(px,py,pz,color) {
     }, 35)
 }
 
-autoload() // choose a random map to load on server start
-
 setInterval(async() => {
     countdown--
     //console.log("countdown: "+countdown)
@@ -223,7 +265,7 @@ setInterval(async() => {
         Game.bottomPrintAll("[#FFDE0A]Time until next map: [#FFFFFF]"+countdown+" seconds.",1000)
     }
     if (countdown < 1) {
-        countdown = 600
+        countdown = countdownDefault
         autoload()
     }
 },1000)
