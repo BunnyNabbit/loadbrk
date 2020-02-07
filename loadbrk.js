@@ -1,10 +1,12 @@
 //loadbrk.js, created by bunnynabbit (aka SmartLion on Brick Hill) and pb2007 (Podnf)
+
 // Settings \\
 sets = ["blocky","brkcanyon","house","house2","tower"] // Files to be loaded by the auto selector (ignored if flat-file-db already exists)
-ownerAdminId = 1 // user id goes here
-countdownDefault = 600 // 600 seconds is 10 minutes
+ownerAdminId = 1 // user id goes here (you can find this by looking at the number at the end of the url of your profile page)
+countdownDefault = 600 // autoload time in seconds (default is 600 seconds, so an autoload happens every 10 minutes)
 guiEnable = true
 flatfiledbEnabled = false // (npm i flat-file-db) Uses flat-file-db to save sets added from /add and ports existing data from the sets array. If database already exists then the above hardcoded array wont be used
+consoleOutput = true // if false, there will be no messages in the server console
 // Settings \\
 
 countdown = countdownDefault
@@ -17,12 +19,12 @@ db.on('open', function() {
     let twig = db.has("setdb")
     if (twig == true) {
         twig = db.get("setdb")
-        console.log(`Loaded save with ${twig.length} sets`)
+        if (consoleOutput) console.log(`Loaded save with ${twig.length} sets`)
         sets = twig 
         autoload()
     } else { 
-        console.log(`WARN: Save data not found! Creating save data.`)
-        console.log(`${sets.length} sets ported into database`)
+        if (consoleOutput) console.log(`WARN: Save data not found! Creating save data.`)
+        if (consoleOutput) console.log(`${sets.length} sets ported into database`)
         db.put("setdb",sets)
         autoload()
     }
@@ -39,8 +41,9 @@ Game.command("load", async(p,i) => { //TODO: tidy up the code
         brick.destroy()
     })
     await sleep(2000)
+    if (consoleOutput) console.log("loading "+i)
     Game.messageAll(`\\c6Loading ${i}.brk`)
-    let data = await Game.loadBrk(`./AAAbrickloadmaps/${i}.brk`)
+    let data = await Game.loadBrk(`./maps/${i}.brk`)
     Game.setEnvironment(data.environment)
     Game.players.forEach((player) => {
         player.respawn()
@@ -60,6 +63,7 @@ Game.command("load", async(p,i) => { //TODO: tidy up the code
             brick.destroy()
         }
     })
+if (consoleOutput) console.log("loaded "+i)
 })
 
 Game.command("add", (p,i) => {
@@ -116,13 +120,12 @@ Game.command("sets", (p,i) => {
 
 async function autoload() {
     do {
-        console.log("Rolling die for a new map...")
+        if (consoleOutput) console.log("Rolling die for a new map...")
         i = sets[randynumber(0,sets.length - 1)]
         currentMap = Game.mapName
         newMap = i+'.brk'
-        //debug
-        console.log("Rolled "+newMap+" as our new map.")
-        console.log(currentMap+" is the current map.")
+        if (consoleOutput) console.log("Rolled "+newMap+" as our new map.")
+        if (consoleOutput) console.log(currentMap+" is the current map.")
     }
     while (newMap == currentMap); // keep rolling until we get a different map than what we had previously
 
@@ -131,9 +134,9 @@ async function autoload() {
         brick.destroy()
     })
     await sleep(2000)
-    console.log("autoloading "+i)
+    if (consoleOutput) console.log("autoloading "+i)
     Game.messageAll(`\\c6Autoloading ${i}.brk`)
-    let data = await Game.loadBrk(`./AAAbrickloadmaps/${i}.brk`)
+    let data = await Game.loadBrk(`./maps/${i}.brk`)
     Game.setEnvironment(data.environment)
     Game.players.forEach((player) => {
         player.respawn()
@@ -153,7 +156,7 @@ async function autoload() {
             brick.destroy()
         }
     })
-console.log("autoloaded "+i) 
+if (consoleOutput) console.log("autoloaded "+i) 
 }
 
 function randynumber(min, max) {
@@ -259,7 +262,7 @@ function bubbleexplode(px,py,pz,color) {
 
 setInterval(async() => {
     countdown--
-    //console.log("countdown: "+countdown)
+    //if (consoleOutput) console.log("countdown: "+countdown)
     if (guiEnable) {
         Game.topPrintAll("[#FFDE0A]Current map: [#FFFFFF]"+Game.mapName,1000)
         Game.bottomPrintAll("[#FFDE0A]Time until next map: [#FFFFFF]"+countdown+" seconds.",1000)
