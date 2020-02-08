@@ -27,6 +27,7 @@ using loadbrk.js is also simple. loadbrk comes with some commands that you can u
 `/sets` lists all sets used by the autoloader
 
 if `flatfiledbEnabled` is true then all changes made by these commands will persist
+`ownerAdminId` will also be saved
 
 
 

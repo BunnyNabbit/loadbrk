@@ -5,7 +5,7 @@ sets = ["blocky","brkcanyon","house","house2","tower"] // Files to be loaded by 
 ownerAdminId = 1 // user id goes here (you can find this by looking at the number at the end of the url of your profile page)
 countdownDefault = 600 // autoload time in seconds (default is 600 seconds, so an autoload happens every 10 minutes)
 guiEnable = true
-flatfiledbEnabled = false // (npm i flat-file-db) Uses flat-file-db to save sets added from /add and ports existing data from the sets array. If database already exists then the above hardcoded array wont be used
+flatfiledbEnabled = false // (npm i flat-file-db) Uses flat-file-db to save the ownerid and sets added from /add and ports existing data from the sets array. If database already exists then the above hardcoded array and ownerid wont be used
 consoleOutput = true // if false, there will be no messages in the server console
 // Settings \\
 
@@ -16,54 +16,31 @@ db = flatfile('/tmp/loadbrkdata.db'); // This will create a folder called tmp at
 let readydb = 2
 db.on('open', function() {
     readydb = 1
-    let twig = db.has("setdb")
-    if (twig == true) {
-        twig = db.get("setdb")
-        if (consoleOutput) console.log(`Loaded save with ${twig.length} sets`)
-        sets = twig 
-        autoload()
-    } else { 
-        if (consoleOutput) console.log(`WARN: Save data not found! Creating save data.`)
-        if (consoleOutput) console.log(`${sets.length} sets ported into database`)
-        db.put("setdb",sets)
-        autoload()
-    }
+    sets = insure("setdb",sets)
+    ownerAdminId = insure("ownerid",ownerAdminId)
+    if (consoleOutput) console.log(`Loaded save with ${sets.length} sets`)
+    if (consoleOutput) console.log(`Owner set to userid ${ownerAdminId}`)
+    autoload("autoload")
 });
 } else {
-    autoload() // choose a random map to load on server start
+    autoload("autoload") // choose a random map to load on server start
 }
 
-Game.command("load", async(p,i) => { //TODO: tidy up the code
+function insure(key,data) {
+    var insure = db.has(key)
+    if (insure == true) {
+        return db.get(key)
+    } else { 
+        db.put(key,data)
+        return data
+    }
+}
+
+Game.command("load", async(p,i) => {
     if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
-    countdown = countdownDefault // reset the countdown
-    world.bricks.forEach(async(brick) => {
-        await sleep(2000)
-        brick.destroy()
-    })
-    await sleep(2000)
-    if (consoleOutput) console.log("loading "+i)
-    Game.messageAll(`\\c6Loading ${i}.brk`)
-    let data = await Game.loadBrk(`./maps/${i}.brk`)
-    Game.setEnvironment(data.environment)
-    Game.players.forEach((player) => {
-        player.respawn()
-    })
-    world.bricks.forEach(async(brick) => {
-        if (brick.name == "sb1") { //Gives 10 points
-            spawnscorebubble(brick.position,1)
-            await sleep (4000)
-            brick.destroy()
-        } else if (brick.name == "sb2") { //Gives 50 points
-            spawnscorebubble(brick.position,2)
-            await sleep (4000)
-            brick.destroy()
-        } else if (brick.name == "sb3") { //Gives 100 points
-            spawnscorebubble(brick.position,3)
-            await sleep (4000)
-            brick.destroy()
-        }
-    })
-if (consoleOutput) console.log("loaded "+i)
+    countdown = countdownDefault
+    autoload("loadcommand",i)
+    
 })
 
 Game.command("add", (p,i) => {
@@ -104,7 +81,7 @@ Game.command("guitoggle", (p,i) => {
 Game.command("skip", async(p,i) => {
     if (p.userId !== ownerAdminId) {p.message("\\c6Error: You cannot execute that command as you are not admin!"); return;} else {p.message("\\c5Success! You are an admin, so that command is being executed.");}
     countdown = countdownDefault
-    autoload()
+    autoload("autoload")
 })
 
 Game.command("sets", (p,i) => {
@@ -118,45 +95,60 @@ Game.command("sets", (p,i) => {
 // TODO: make a voteskip command that doesnt require admin and casts a vote if this map should be skipped
 // only act on the autoload if there is a majority of yes
 
-async function autoload() {
-    do {
-        if (consoleOutput) console.log("Rolling die for a new map...")
-        i = sets[randynumber(0,sets.length - 1)]
-        currentMap = Game.mapName
-        newMap = i+'.brk'
-        if (consoleOutput) console.log("Rolled "+newMap+" as our new map.")
-        if (consoleOutput) console.log(currentMap+" is the current map.")
-    }
-    while (newMap == currentMap); // keep rolling until we get a different map than what we had previously
+async function autoload(context,path) {
+    if (context == "autoload") {
+        do {
+            if (consoleOutput) console.log("Rolling die for a new map...")
+            i = sets[randynumber(0,sets.length - 1)]
+            currentMap = Game.mapName
+            newMap = i+'.brk'
+            if (consoleOutput) console.log("Rolled "+newMap+" as our new map.")
+            if (consoleOutput) console.log(currentMap+" is the current map.")
+        }
+        while (newMap == currentMap); // keep rolling until we get a different map than what we had previously
+    }    
 
     world.bricks.forEach(async(brick) => {
         await sleep(2000)
         brick.destroy()
     })
     await sleep(2000)
-    if (consoleOutput) console.log("autoloading "+i)
-    Game.messageAll(`\\c6Autoloading ${i}.brk`)
-    let data = await Game.loadBrk(`./maps/${i}.brk`)
+    let data = "temp"
+    if (context == "autoload") {
+        if (consoleOutput) console.log("autoloading "+i)
+        Game.messageAll(`\\c6Autoloading ${i}.brk`)
+        data = await Game.loadBrk(`./maps/${i}.brk`)
+    } else {
+        if (consoleOutput) console.log("loading "+i)
+        Game.messageAll(`\\c6loading ${path}.brk`)
+        data = await Game.loadBrk(`./maps/${path}.brk`)
+    }
     Game.setEnvironment(data.environment)
     Game.players.forEach((player) => {
         player.respawn()
     })
-    world.bricks.forEach(async(brick) => {
+    addScoreBubbles()
+if (consoleOutput) console.log("loaded "+i) 
+}
+
+function addScoreBubbles() {
+    world.bricks.forEach(async (brick) => {
         if (brick.name == "sb1") { //Gives 10 points
-            spawnscorebubble(brick.position,1)
-            await sleep (4000)
+            spawnscorebubble(brick.position, 1)
+            await sleep(4000)
             brick.destroy()
-        } else if (brick.name == "sb2") { //Gives 50 points
-            spawnscorebubble(brick.position,2)
-            await sleep (4000)
+        }
+        else if (brick.name == "sb2") { //Gives 50 points
+            spawnscorebubble(brick.position, 2)
+            await sleep(4000)
             brick.destroy()
-        } else if (brick.name == "sb3") { //Gives 100 points
-            spawnscorebubble(brick.position,3)
-            await sleep (4000)
+        }
+        else if (brick.name == "sb3") { //Gives 100 points
+            spawnscorebubble(brick.position, 3)
+            await sleep(4000)
             brick.destroy()
         }
     })
-if (consoleOutput) console.log("autoloaded "+i) 
 }
 
 function randynumber(min, max) {
@@ -180,7 +172,6 @@ function spawnscorebubble(pos,type){
             p.bubblescore += 10
             p.bubblemut++
             p.bubblecooldown = 3
-            //brick-streamstuuf line
             p.centerPrint(`${p.bubblescore}`,3)
             bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#00ff00",)
             brick.destroy()
@@ -188,7 +179,6 @@ function spawnscorebubble(pos,type){
             p.bubblescore += 50
             p.bubblemut++
             p.bubblecooldown = 3
-            //brick-streamstuuf line
             p.centerPrint(`${p.bubblescore}`,3)
             bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#ffff00",)
             brick.destroy()
@@ -196,7 +186,6 @@ function spawnscorebubble(pos,type){
             p.bubblescore += 100
             p.bubblemut++
             p.bubblecooldown = 3
-            //brick-streamstuuf line
             p.centerPrint(`${p.bubblescore}`,3)
             bubbleexplode(brick.position.x,brick.position.y,brick.position.z,"#ff0000",)
             brick.destroy()
@@ -269,6 +258,6 @@ setInterval(async() => {
     }
     if (countdown < 1) {
         countdown = countdownDefault
-        autoload()
+        autoload("autoload")
     }
 },1000)
