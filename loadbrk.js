@@ -61,6 +61,10 @@ Game.command("load", async(p,i) => { //TODO: tidy up the code
             spawnscorebubble(brick.position,3)
             await sleep (4000)
             brick.destroy()
+        } else if (brick.name == "kill") {
+        	brick.touching((player) => {
+        		player.kill()
+        	})
         }
     })
 if (consoleOutput) console.log("loaded "+i)
@@ -154,6 +158,10 @@ async function autoload() {
             spawnscorebubble(brick.position,3)
             await sleep (4000)
             brick.destroy()
+        } else if (brick.name == "kill") {
+        	brick.touching((player) => {
+        		player.kill()
+        	})
         }
     })
 if (consoleOutput) console.log("autoloaded "+i) 
