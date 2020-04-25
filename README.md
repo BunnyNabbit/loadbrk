@@ -34,6 +34,10 @@ Loadbrk contains many configuration options that you can change in the `loadbrk.
 
 `guiEnable` enables or disables the GUI by default, instead of running `/guitoggle`.
 
+if `flatfiledbEnabled` is true then all changes made by these commands will persist
+
+`ownerAdminId` will also be saved
+
 `flatfiledbEnabled` enables or disables the usage of flat-file-db to make maps and settings persist. If you don't have flat-file-db, either run `npm i flat-file-db` to install it or keep this disabled.
 
 `consoleOutput` outputs some useful information to the server console, such as when an autoload occurs.
