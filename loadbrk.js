@@ -7,7 +7,6 @@ countdownDefault = 600 // autoload time in seconds (default is 600 seconds, so a
 guiEnable = true
 flatfiledbEnabled = false // (npm i flat-file-db) Uses flat-file-db to save the ownerid and sets added from /add and ports existing data from the sets array. If database already exists then the above hardcoded array and ownerid wont be used
 consoleOutput = true // if false, there will be no messages in the server console
-debugOutput = false // if true, there will be debug messages in the server console. this can clutter things, so you should probably keep it false if you're not a dev
 // Settings \\
 
 countdown = countdownDefault
@@ -149,17 +148,11 @@ function addScoreBubbles() {
             brick.destroy()
         } else if (brick.name == "kill") {
         	brick.touching((player) => {
-        		if (debugOutput) {console.log("touch")}
         		player.kill()
         	})
         }
     })
     if (consoleOutput) console.log("autoloaded "+i)
-    if (debugOutput) {
-    	brickarray = []
-    	world.bricks.forEach((brick) => {brickarray.push(brick.name)})
-    	console.log("Loaded the following bricks: "+brickarray)
-    }
 }
 
 function randynumber(min, max) {

@@ -41,5 +41,3 @@ if `flatfiledbEnabled` is true then all changes made by these commands will pers
 `flatfiledbEnabled` enables or disables the usage of flat-file-db to make maps and settings persist. If you don't have flat-file-db, either run `npm i flat-file-db` to install it or keep this disabled.
 
 `consoleOutput` outputs some useful information to the server console, such as when an autoload occurs.
-
-`debugOutput` outputs some more information that is useful to developers. Enabling this setting may clutter the server console, so you should keep this disabled unless you are a developer.
