@@ -7,6 +7,7 @@ countdownDefault = 600 // autoload time in seconds (default is 600 seconds, so a
 guiEnable = true
 flatfiledbEnabled = false // (npm i flat-file-db) Uses flat-file-db to save sets added from /add and ports existing data from the sets array. If database already exists then the above hardcoded array wont be used
 consoleOutput = true // if false, there will be no messages in the server console
+debugOutput = true // if false, there will be no debug messages in the server console
 // Settings \\
 
 countdown = countdownDefault
@@ -63,6 +64,7 @@ Game.command("load", async(p,i) => { //TODO: tidy up the code
             brick.destroy()
         } else if (brick.name == "kill") {
         	brick.touching((player) => {
+        		if (debugOutput) {console.log("touch")}
         		player.kill()
         	})
         }
@@ -160,6 +162,7 @@ async function autoload() {
             brick.destroy()
         } else if (brick.name == "kill") {
         	brick.touching((player) => {
+        		if (debugOutput) {console.log("touch")}
         		player.kill()
         	})
         }
