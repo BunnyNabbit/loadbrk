@@ -69,7 +69,13 @@ Game.command("load", async(p,i) => { //TODO: tidy up the code
         	})
         }
     })
-if (consoleOutput) console.log("loaded "+i)
+    if (consoleOutput) console.log("loaded "+i)
+    if (debugOutput) {
+    	brickarray = []
+    	world.bricks.forEach((brick) => {brickarray.push(brick.name)})
+    	console.log("Loaded the following bricks:")
+    	console.log(brickarray)
+    }
 })
 
 Game.command("add", (p,i) => {
@@ -167,7 +173,13 @@ async function autoload() {
         	})
         }
     })
-if (consoleOutput) console.log("autoloaded "+i) 
+    if (consoleOutput) console.log("autoloaded "+i)
+    if (debugOutput) {
+    	brickarray = []
+    	world.bricks.forEach((brick) => {brickarray.push(brick.name)})
+    	console.log("Loaded the following bricks:")
+    	console.log(brickarray)
+    }
 }
 
 function randynumber(min, max) {
