@@ -223,6 +223,8 @@ Game.on('playerJoin', (p) => {
             }
         }
     },1000)
+
+    p.message("[#00FFFF]This server proudly uses Loadbrk v1.0.0.")
 })
 
 
