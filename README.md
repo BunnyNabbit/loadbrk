@@ -1,11 +1,11 @@
 # About
-Loadbrk is a script written for node-hill that lets you load brk files with a simple command. It also automatically loads a new map within a certain interval (default 10 minutes) so that your set is always fresh with a new map.
+loadbrk is a script written for node-hill that lets you load brk files with a simple command. it also automatically loads a new map within a certain interval (default 10 minutes) so that your set is always fresh with a new map.
 
-# Installation and Instructions
-Installing Loadbrk is very simple. Just clone the repository and copy the `loadbrk.js` file into your `user_scripts` folder.
+# installation and instructions
+installing loadbrk is very simple. just clone the repository and copy the `loadbrk.js` file into your `user_scripts` folder.
 
 ## Commands
-Using Loadbrk is also simple. Here are the commands:
+using loadbrk is also simple. here are the commands:
 
 `/load` loads a brk file. For example, typing `/load house` in chat will load the map at `./maps/house.brk`.
 
@@ -23,14 +23,14 @@ Using Loadbrk is also simple. Here are the commands:
 
 If `flatfiledbEnabled` is set to true all of these settings will persist.
 
-## More Configuration Options
-Loadbrk contains many configuration options that you can change in the `loadbrk.js` file. Here are all of the extra configuration options:
+## more configuration options
+loadbrk contains many configuration options that you can change in the `loadbrk.js` file. here are all of the extra configuration options:
 
 `sets` is a hardcoded list of sets that you can use if you have set `flatfiledbEnabled` to false. If `flatfiledbEnabled` is true, this list is ignored.
 
-`ownerAdminId` is the ID of your user. You can find your ID by going to your profile and copying the number at the end. Don't forget to set this number to your ID, or else commands may not work.
+`ownerAdminId` is the ID of your user. you can find your ID by going to your profile and copying the number at the end. don't forget to set this number to your ID, or else commands may not work.
 
-`countdownDefault` is the default amount of time between autoload cycles in seconds. The default is 600 seconds, which is 10 minutes.
+`countdownDefault` is the default amount of time between autoload cycles in seconds. the default is 600 seconds, which is 10 minutes.
 
 `guiEnable` enables or disables the GUI by default, instead of running `/guitoggle`.
 
@@ -38,6 +38,6 @@ if `flatfiledbEnabled` is true then all changes made by these commands will pers
 
 `ownerAdminId` will also be saved
 
-`flatfiledbEnabled` enables or disables the usage of flat-file-db to make maps and settings persist. If you don't have flat-file-db, either run `npm i flat-file-db` to install it or keep this disabled.
+`flatfiledbEnabled` enables or disables the usage of flat-file-db to make maps and settings persist. if you don't have flat-file-db, either run `npm i flat-file-db` to install it or keep this disabled.
 
 `consoleOutput` outputs some useful information to the server console, such as when an autoload occurs.
