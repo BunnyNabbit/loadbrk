@@ -95,14 +95,20 @@ Game.command("sets", (p,i) => {
 // only act on the autoload if there is a majority of yes
 
 async function autoload(context,path) {
+	tries = 0
     if (context == "autoload") {
         do {
-            if (consoleOutput) console.log("Rolling die for a new map...")
+        	if (tries < 50) {
+        		newMap = sets[0]+".brk"
+        		break
+        	}
+            if (consoleOutput) console.log("Rolling die for a new map...");
             i = sets[randynumber(0,sets.length - 1)]
             currentMap = Game.mapName
             newMap = i+'.brk'
-            if (consoleOutput) console.log("Rolled "+newMap+" as our new map.")
-            if (consoleOutput) console.log(currentMap+" is the current map.")
+            if (consoleOutput) console.log("Rolled "+newMap+" as our new map.");
+            if (consoleOutput) console.log(currentMap+" is the current map.");
+            tries++
         }
         while (newMap == currentMap); // keep rolling until we get a different map than what we had previously
     }    
