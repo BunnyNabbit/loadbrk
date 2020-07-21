@@ -99,7 +99,8 @@ async function autoload(context,path) {
     if (context == "autoload") {
         do {
         	if (tries < 50) {
-        		newMap = sets[0]+".brk"
+        		i = sets[0]
+        		newMap = i+".brk"
         		break
         	}
             if (consoleOutput) console.log("Rolling die for a new map...");
